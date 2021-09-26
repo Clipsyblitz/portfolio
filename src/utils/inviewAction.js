@@ -1,4 +1,3 @@
-
 export default function inView(node, params = {}) {
 	let observer;
 
