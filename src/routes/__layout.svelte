@@ -12,7 +12,6 @@
 	import '../app.postcss';
 	import inView from '../utils/inviewAction.js';
 	import { slide } from 'svelte/transition';
-	import { svg_element } from 'svelte/internal';
 
 	export let page;
 
@@ -55,16 +54,28 @@
 			<img class="w-1/5 mb-8 rounded-full " src="/assets/pp.jpg" alt="Malone JULIENNE" />
 			<p class="md:text-6xl sm:text-3xl" style="color: #13293d;">Malone JULIENNE</p>
 		</div>
-		<div class="font-mono flex justify-around m-4 text-blue-500">
-			{#each links as { text, href }}
-				{#if page.path === href}
-					<a class="md:text-4xl" {href}>
-						<mark style="background-color: #d81159; color: #e8f1f2">{text}</mark>
-					</a>
-				{:else}
-					<a class="md:text-4xl" {href}>{text}</a>
-				{/if}
-			{/each}
+		<div class="font-mono flex text-blue-500 text-center">
+			<div class="flex-1 flex justify-center mr-auto">
+				<a class="md:text-4xl hover:underline" class:active={'/' === page.path} href="/"> Home </a>
+			</div>
+			<div class="flex-1 flex justify-center">
+				<a
+					class="md:text-4xl hover:underline"
+					class:active={'/portfolio' === page.path}
+					href="/portfolio"
+				>
+					Portfolio
+				</a>
+			</div>
+			<div class="flex-1 flex justify-center ml-auto">
+				<a
+					class="md:text-4xl hover:underline"
+					class:active={'/contact' === page.path}
+					href="/contact"
+				>
+					Contact
+				</a>
+			</div>
 		</div>
 	</div>
 {/if}
@@ -81,16 +92,20 @@
 		</a>
 
 		{#if innerWidth >= 500}
-			<div class="flex justify-around w-2/5 mr-8">
-				{#each links as { text, href }}
-					{#if page.path === href}
-						<a class="md:text-2xl" {href}>
-							<mark style="background-color: #d81159; color: #e8f1f2">{text}</mark>
-						</a>
-					{:else}
-						<a class="md:text-2xl" style="color: #3b82f6;" {href}>{text}</a>
-					{/if}
-				{/each}
+			<div class="flex justify-around w-2/5 mr-8 text-blue-500">
+				<a class="md:text-2xl hover:underline" class:active={'/' === page.path} href="/">Home</a>
+				<a
+					class="md:text-2xl hover:underline"
+					class:active={'/portfolio' === page.path}
+					href="/portfolio"
+				>
+					Portfolio
+				</a>
+				<a
+					class="md:text-2xl hover:underline"
+					class:active={'/contact' === page.path}
+					href="/contact">Contact</a
+				>
 			</div>
 		{:else}
 			<div class="w-24 flex justify-end">
@@ -107,43 +122,46 @@
 
 {#if isMenuActive && innerWidth < 500}
 	<div
-		class="fixed right-2 w-24 h-full top-12 flex flex-col text-right border-l-2 border-gray-100"
+		class="fixed right-0 w-24 h-full top-12 flex flex-col text-right border-l-2 border-gray-100 bg-white text-blue-500"
 		in:slide={{ duration: 1500 }}
 		out:slide
 	>
-		{#each links as { text, href }}
-			{#if page.path === href}
-				<a class="md:text-2xl mt-5" {href}>
-					<mark style="background-color: #d81159; color: #e8f1f2">{text}</mark>
-				</a>
-			{:else}
-				<a class="md:text-2xl mt-5" style="color: #3b82f6;" {href}>{text}</a>
-			{/if}
-		{/each}
+		<div class="md:text-2xl mt-5 mr-2 ">
+			<a class="hover:underline" class:active={'/' === page.path} href="/">Home</a>
+		</div>
+		<div class="md:text-2xl mt-5 mr-2">
+			<a class="hover:underline" class:active={'/portfolio' === page.path} href="/portfolio">
+				Portfolio
+			</a>
+		</div>
+		<div class="md:text-2xl mt-5 mr-2">
+			<a class="hover:underline" class:active={'/contact' === page.path} href="/contact">
+				Contact
+			</a>
+		</div>
 	</div>
 {/if}
 
 <slot />
 
-<div class="md:h-40 flex items-center border-t-2 justify-center">
-	<div class="w-4/5 flex items-center justify-around text-2xl">
-		<a class="flex flex-col items-center" href="https://github.com/Clipsyblitz">
-			<img class="md:w-12" src="/assets/github.svg" alt="github icon" />
-			{#if innerWidth >= 500}
-				<p>Clipsyblitz</p>
-			{/if}
+<div class="md:h-40 flex items-center justify-center">
+	<div class="w-2/5 flex items-center justify-around text-2xl border-t-2">
+		<a href="https://github.com/Clipsyblitz">
+			<img class="md:w-12 mt-8 hover:opacity-50" src="/assets/github.svg" alt="github icon" />
 		</a>
-		<a class="flex flex-col items-center" href="https://www.linkedin.com/in/malone-julienne/">
-			<img class="md:w-12" src="/assets/linkedin.svg" alt="linkedin icon" />
-			{#if innerWidth >= 500}
-				<p>Malone JULIENNE</p>
-			{/if}
+		<a href="https://www.linkedin.com/in/malone-julienne/">
+			<img class="md:w-12 mt-8 hover:opacity-50" src="/assets/linkedin.svg" alt="linkedin icon" />
 		</a>
-		<a class="flex flex-col items-center" href="/contact">
-			<img class="md:w-12" src="/assets/mail.svg" alt="mail icon" />
-			{#if innerWidth >= 500}
-				<p>Mail</p>
-			{/if}
+		<a href="/contact">
+			<img class="md:w-12 mt-8 hover:opacity-50" src="/assets/mail.svg" alt="mail icon" />
 		</a>
 	</div>
 </div>
+
+<style>
+	.active {
+		background-color: #d81159;
+		color: #e8f1f2;
+		text-decoration: none;
+	}
+</style>
