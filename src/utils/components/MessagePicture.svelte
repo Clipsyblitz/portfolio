@@ -4,7 +4,7 @@
 
 <div>
     <img
-        class="rounded-full w-12 ml-4 mr-4"
+        class="rounded-full md:w-12 w-6 ml-2 mr-2"
         src={side === 'right' ? '/assets/pp.jpg' : '/assets/user.svg'}
         alt="user icon"
     />

@@ -10,9 +10,9 @@
 	>
 		<p>New conversation</p>
 	</div>
-	<div>
+	<div class="flex flex-col items-center justify-center">
 		{#each messages as {p, message}}
-			<MessageBubble side={p % 2 === 0 ? 'left' : 'right'}>{message}</MessageBubble>
+			<MessageBubble side={p % 2 === 0 ? 'left' : 'right'}><p>{@html message}</p></MessageBubble>
 		{/each}
 	</div>
 </div>

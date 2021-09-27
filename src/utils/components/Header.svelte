@@ -96,19 +96,19 @@
 
 {#if isMenuActive && innerWidth < 500}
 	<div
-		class="fixed right-0 w-24 h-full top-12 flex flex-col text-right border-l-2 border-gray-100 bg-white text-blue-500"
-		in:slide={{ duration: 1500 }}
+		class="fixed right-0 w-24 top-12 flex flex-col items-center border-l-2 border-gray-100 bg-white text-blue-500 shadow-md"
+		in:slide={{ duration: 1000 }}
 		out:slide
 	>
-		<div class="md:text-2xl mt-5 mr-2 ">
+		<div class="md:text-2xl mt-5">
 			<a class="hover:underline" class:active={'/' === page.path} href="/">Home</a>
 		</div>
-		<div class="md:text-2xl mt-5 mr-2">
+		<div class="md:text-2xl mt-5">
 			<a class="hover:underline" class:active={'/portfolio' === page.path} href="/portfolio">
 				Portfolio
 			</a>
 		</div>
-		<div class="md:text-2xl mt-5 mr-2">
+		<div class="md:text-2xl mt-5 mb-5">
 			<a class="hover:underline" class:active={'/contact' === page.path} href="/contact">
 				Contact
 			</a>
