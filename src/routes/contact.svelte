@@ -1,20 +1,7 @@
 <script>
-	import { onMount } from 'svelte';
-	import Swal from 'sweetalert2';
+	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
-	$: isCaptchaValidate = false;
-
-	function verifyUser() {
-		isCaptchaValidate = true;
-	}
-
-	onMount(
-		() => {
-			window.isCaptchaValidate;
-			window.verifyUser = verifyUser;
-		},
-		() => (window.verifyUser = null)
-	);
+	$ :isFormValid = false;
 
 	let form = {
 		name: '',
@@ -26,10 +13,22 @@
 
 	let emailReg = new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/);
 
-	let emailRegTest;
+	let formValidator = {
+		name: false,
+		surname: false,
+		mail: false,
+		subject: false,
+		text: false
+	};
 
-	const handleChange = () => {
-		emailRegTest = emailReg.test(form.mail);
+	const handleChange = (inputName) => {
+		if (inputName === 'mail') {
+			formValidator[inputName] = emailReg.test(form.mail);
+		} else {
+			formValidator[inputName] = form[inputName] !== '';
+		}
+		
+		isFormValid = formValidator.mail && formValidator.name && formValidator.subject && formValidator.surname && formValidator.text
 	};
 
 	const Toast = Swal.mixin({
@@ -44,37 +43,50 @@
 		}
 	});
 
-	const sendEmail = () => {
-		let header = new Headers();
-		header.append('Accept', '*/*');
-		header.append('Content-type', 'application/json');
-		fetch('/api/mail', {
-			method: 'POST',
-			headers: header,
-			body: JSON.stringify({
-				to: 'malone.julienne@gmail.com',
-				from: 'portfolio-mj@outlook.com',
-				subject: form.subject,
-				text: form.text + `\n\n Send by ${form.name} ${form.surname} from ${form.mail}`
-			})
-		})
-			.then(() =>
-				Toast.fire({
-					icon: 'success',
-					title: 'Mail sent successfully'
-				})
-			)
-			.catch(() =>
-				Toast.fire({
-					icon: 'error',
-					title: 'Error while sending'
-				})
-			);
+	const onSubmit = () => {
+		sendEmail();
+	};
+
+	const sendEmail = async () => {
+		grecaptcha.ready(() => {
+			grecaptcha
+				.execute('6LcoXA4dAAAAADFIB6p4xf3eTnZQRr1-hDu39xWm', { action: 'contactMail' })
+				.then(async (t) => {
+					let header = new Headers();
+					header.append('Accept', '*/*');
+					header.append('Content-type', 'application/json');
+					const response = await fetch('/api/mail', {
+						method: 'POST',
+						body: JSON.stringify({
+							token: t,
+							mailContent: {
+								to: 'malone.julienne@gmail.com',
+								subject: form.subject,
+								text: form.text + `\n\n Send by ${form.name} ${form.surname} from ${form.mail}`
+							}
+						})
+					});
+					if (response.status === 200) {
+						Toast.fire({
+							icon: 'success',
+							title: 'Mail sent successfully'
+						});
+					} else {
+						Toast.fire({
+							icon: 'error',
+							title: 'Error while sending'
+						});
+					}
+				});
+		});
 	};
 </script>
 
 <svelte:head>
-	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+	<script
+		src="https://www.google.com/recaptcha/api.js?render=6LcoXA4dAAAAADFIB6p4xf3eTnZQRr1-hDu39xWm"
+		async
+		defer></script>
 </svelte:head>
 
 <div class="flex justify-center ">
@@ -84,21 +96,27 @@
 		</div>
 
 		<div class="flex flex-col items-center justify-center md:text-3xl">
-			<form>
+			<form on:submit|preventDefault={onSubmit}>
 				<div class="flex flex-col mb-4">
 					<label class="mb-2" for="name">Name</label>
 					<input
-						class="shadow-md bg-gray-50 rounded-2xl pr-3 pl-3 text-gray-600 border-l-8 border-green-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+						class={`shadow-md bg-gray-50 rounded-2xl pr-3 pl-3 text-gray-600 border-l-8 ${
+							formValidator.name ? 'border-green-400' : 'border-red-400'
+						} focus:outline-none focus:ring-2 focus:ring-blue-400`}
 						id="name"
 						bind:value={form.name}
+						on:input={() => handleChange('name')}
 					/>
 				</div>
 				<div class="flex flex-col mb-4">
 					<label for="surname">Surname</label>
 					<input
-						class="shadow-md bg-gray-50 rounded-2xl pr-3 pl-3 text-gray-600 border-l-8 border-green-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+						class={`shadow-md bg-gray-50 rounded-2xl pr-3 pl-3 text-gray-600 border-l-8 ${
+							formValidator.surname ? 'border-green-400' : 'border-red-400'
+						} focus:outline-none focus:ring-2 focus:ring-blue-400`}
 						id="surname"
 						bind:value={form.surname}
+						on:input={() => handleChange('surname')}
 					/>
 				</div>
 
@@ -106,43 +124,46 @@
 					<label class="mb-2" for="mail">Mail</label>
 					<input
 						class={`shadow-md bg-gray-50 rounded-2xl pr-3 pl-3 text-gray-600 border-l-8 ${
-							emailRegTest ? 'border-green-400' : 'border-red-400'
+							formValidator.mail ? 'border-green-400' : 'border-red-400'
 						} focus:outline-none focus:ring-2 focus:ring-blue-400`}
 						id="mail"
 						bind:value={form.mail}
-						on:input={handleChange}
+						on:input={() => handleChange('mail')}
 					/>
 				</div>
 				<div class="flex flex-col mb-4">
 					<label class="mb-2" for="subject">Subject</label>
 					<input
-						class="shadow-md bg-gray-50 rounded-2xl pr-3 pl-3 text-gray-600 border-l-8 border-green-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+						class={`shadow-md bg-gray-50 rounded-2xl pr-3 pl-3 text-gray-600 border-l-8 ${
+							formValidator.subject ? 'border-green-400' : 'border-red-400'
+						} focus:outline-none focus:ring-2 focus:ring-blue-400`}
 						id="subject"
 						bind:value={form.subject}
-					/>
-					<div class="flex flex-col">
-						<label class="mb-2" for="content">Message</label>
-						<textarea
-							class="shadow-md bg-gray-50 rounded-2xl pr-3 pl-3 text-gray-600 border-l-8 border-green-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-							id="content"
-							bind:value={form.text}
-						/>
-					</div>
-				</div>
-				<div class="flex justify-center ">
-					<div
-						class="g-recaptcha mt-8 mb-8"
-						data-sitekey="6LfjiZocAAAAAFIR3g5dhAdBzrACfglTAgwE0taF"
-						data-callback="verifyUser"
+						on:input={() => handleChange('subject')}
 					/>
 				</div>
+				<div class="flex flex-col mb-4">
+					<label class="mb-2" for="content">Message</label>
+					<textarea
+						class={`shadow-md bg-gray-50 rounded-2xl pr-3 pl-3 text-gray-600 border-l-8 ${
+							formValidator.text ? 'border-green-400' : 'border-red-400'
+						} focus:outline-none focus:ring-2 focus:ring-blue-400`}
+						id="content"
+						bind:value={form.text}
+						on:input={() => handleChange('text')}
+					/>
+				</div>
+				<div class="flex justify-center mt-8">
+					<button
+						disabled={!isFormValid}
+						type="submit"
+						style="color: white; background: #d81159;"
+						class={`p-4 rounded-3xl hover:opacity-50 disabled:opacity-50`}>Send</button
+					>
+				</div>
+				<div>{isFormValid}</div>
+				<div>{JSON.stringify(formValidator)}</div>
 			</form>
-			<button
-				on:click={sendEmail}
-				style="color: white; background: #d81159;"
-				class=" p-4 rounded-3xl hover:opacity-50"
-				disabled={!isCaptchaValidate}>Send</button
-			>
 		</div>
 	</div>
 </div>
