@@ -161,8 +161,6 @@
 						class={`p-4 rounded-3xl hover:opacity-50 disabled:opacity-50`}>Send</button
 					>
 				</div>
-				<div>{isFormValid}</div>
-				<div>{JSON.stringify(formValidator)}</div>
 			</form>
 		</div>
 	</div>
